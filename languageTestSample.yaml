@@ -1,0 +1,51 @@
+# ID: 2024022800
+- type: integration
+  alias: zabbixIntegration
+  parameters:
+    - '5f38872e-08a5-22dd-720b'
+    - "anotherParameter"
+
+# ID: 2024022900
+- type: condition
+  condition: "IF result['hermit'] = 'Potato'"
+  action:
+    - type: condition
+      condition: "IF time.now() = result['time']"
+      action:
+        - type: action
+          alias: 'false'
+          task: print
+          parameters:
+            - 'This shit works man | Reference ID: 2024022900-00'
+    
+    - type: condition
+      condition: "IF that = this"
+      action:
+        # - type: condition
+        #   condition: "IF time.now() = result['time']"
+        #   action:
+        #     - type: action
+        #       alias: 'false'
+        #       task: print
+        #       parameters:
+        #         - 'This shit works man | Reference ID: 2024022900-01'
+        - type: action
+          alias: anotherAlias
+          task: print
+          parameters:
+            - "This works | Reference ID: 2024022900-02"
+    
+    - type: condition
+      condition: "IF time.now() = result['time']"
+      action:
+        - type: action
+          alias: 'false'
+          task: print
+          parameters:
+            - "This shit works man | Reference ID: 2024022900-03"
+    
+    - type: action
+      alias: 'false'
+      task: print
+      parameters:
+        - 'This shit works as well | Reference ID: 2024022900-04'
