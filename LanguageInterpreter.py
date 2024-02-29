@@ -23,7 +23,22 @@ class YAMLLanguageInterpreter():
     
     
     def __processActions(self, payload):
-        print("An action")
+        
+        interpretedText = ''
+        if self.interpretedText:
+            interpretedText += '\n'
+        
+        if payload.get('alias') != 'false':
+            interpretedText += payload.get('alias')
+            interpretedText += " = getIntegrationWithID("
+            interpretedText += ', '.join(payload.get('parameters'))
+            interpretedText += ')'
+        else:
+            interpretedText += payload.get('task') + "("
+            interpretedText += ', '.join(payload.get('parameters'))
+            interpretedText += ')'
+        
+        return interpretedText
     
     
     
@@ -33,8 +48,7 @@ class YAMLLanguageInterpreter():
     
     
     def __processConditions(self, payload):
-        print("A condition")
-        return ""
+        ...
     
     
     
@@ -54,7 +68,17 @@ class YAMLLanguageInterpreter():
         
         
     def __processModules(self, payload):
-        print("A module")
+        
+        interpretedText = ''
+        if self.interpretedText:
+            interpretedText += '\n'
+        
+        interpretedText += payload.get('alias')
+        interpretedText += " = getModuleWithID("
+        interpretedText += ', '.join(payload.get('parameters'))
+        interpretedText += ')'
+        
+        return interpretedText
     
     
     
