@@ -15,7 +15,7 @@ class YAMLLanguageInterpreter():
         self.recordIterated = []
         
         self.processes = {
-            'action': self.__processActions, 
+            'execute': self.__processActions, 
             'condition': self.__processConditions, 
             'function': self.__processCodeSnippets, 
             'integration': self.__processIntegrations, 
