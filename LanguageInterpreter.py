@@ -1,15 +1,3 @@
-# zabbixIntegration = getIntegrationWithData('5f38872e-08a5-22dd-720b-65c8c5084358')
-# zabbixIntegrationOriginal = zabbixIntegration
-
-# for zabbixIntegration in zabbixIntegrationOriginal:
-#     if zabbixIntegration['Severity'] == 'Disaster':
-#         emailID = moduleCall('Contacts', '22dd-720b-65c8c5084358', 'email_field')
-#         sendEmail(emailID)
-
-
-
-
-
 from yaml import safe_load as loadYAML
 
 
@@ -23,6 +11,14 @@ class YAMLLanguageInterpreter():
         self.originalPayload = loadYAML(YAMLPayload)
         self.interpretedText = ''
         self.recordIterated = []
+        
+        self.processes = {
+            'action': self.__processActions, 
+            'condition': self.__processConditions, 
+            'function': self.__processCodeSnippets, 
+            'integration': self.__processIntegrations, 
+            'module': self.__processModules
+        }
         
     
     
@@ -45,6 +41,9 @@ class YAMLLanguageInterpreter():
     def __processIntegrations(self, payload):
         
         interpretedText = ''
+        if self.interpretedText:
+            interpretedText += '\n'
+        
         interpretedText += payload.get('alias')
         interpretedText += " = getIntegrationWithID("
         interpretedText += ', '.join(payload.get('parameters'))
@@ -60,18 +59,10 @@ class YAMLLanguageInterpreter():
     
     
     def processPayload(self):
-        
-        processes = {
-            'action': self.__processActions, 
-            'condition': self.__processConditions, 
-            'function': self.__processCodeSnippets, 
-            'integration': self.__processIntegrations, 
-            'module': self.__processModules
-        }
-        
+                
         for process in self.originalPayload:
             self.recordIterated = []
-            action = processes[process['type']]
+            action = self.processes[process['type']]
             result = action(process)
             self.interpretedText += result
 
