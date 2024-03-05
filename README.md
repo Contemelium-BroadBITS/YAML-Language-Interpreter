@@ -2,10 +2,10 @@
 This interpreter serves as a bridge between rule declarations written in YAML format and executable Python code within OpExpert. It supports five fundamental operations crucial for setting rules within the OpExpert environment: Condition, Execution, Function, Integration, and Module. Each operation corresponds to a specific aspect of rule definition and execution.
 
 - Condition: Specifies the conditions under which a rule should be triggered or applied.
-- Execution: Defines the actions or tasks to be executed when a rule's conditions are met.
-- Function: Allows users to define custom functions or methods to be used within rule execution.
-- Integration: Facilitates the integration of external services or systems into rule execution.
-- Module: Enables the organization and modularization of rule components for better management and reusability.
+- Execution: ...
+- Function: ...
+- Integration: ...
+- Module: ...
 
 <br>
 
@@ -89,3 +89,10 @@ We'll now outline the format for each type of operation and provide clear instru
     - filter(s)                 <String>                    [optional]
     - filter(s)                 <String>                    [optional]
 ```
+
+- `type` is a **required** parameter that defines the type of operation being performed.
+- `alias` is a **required** parameter serving as the variable name storing the returned integration.
+- `recordID` is a **required** parameter used to pass the record ID of the module to retrieve.
+- `moduleName` is a **required** parameter used to pass the name of the module to retrieve from.
+- `fieldName` is a **required** parameter used to pass the name of the field to retrieve teh data from.
+- `params` is an **optional** parameter allowing specification of filters to apply on the fetched module. Multiple filters may be specified as shown above.
