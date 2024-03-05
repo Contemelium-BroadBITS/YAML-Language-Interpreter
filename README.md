@@ -60,13 +60,13 @@ We'll now outline the format for each type of operation and provide clear instru
 ### 3.1.1. Types of Operations: Integrations
 
 ```yaml
-- type:                 integration                 [required]
-alias:                  <String>                    [required]
-recordID:               <String>                    [required]
-params:
-    - filter(s)         <String>                    [optional]
-    - filter(s)         <String>                    [optional]
-    - filter(s)         <String>                    [optional]
+- type:                         integration                 [required]
+  alias:                        <String>                    [required]
+  recordID:                     <String>                    [required]
+  params:
+    - filter(s)                 <String>                    [optional]
+    - filter(s)                 <String>                    [optional]
+    - filter(s)                 <String>                    [optional]
 ```
 
 - `type` is a **required** parameter that defines the type of operation being performed.
@@ -77,3 +77,15 @@ params:
 <br>
 
 ### 3.1.2. Types of Operations: Modules
+
+```yaml
+- type:                         module                      [required]
+  alias:                        <String>                    [required]
+  recordID:                     <String>                    [required]
+  moduleName:                   <STring>                    [required]
+  fieldName:                    <String>                    [required]
+  params:
+    - filter(s)                 <String>                    [optional]
+    - filter(s)                 <String>                    [optional]
+    - filter(s)                 <String>                    [optional]
+```
