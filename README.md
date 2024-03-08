@@ -1,12 +1,12 @@
 # 1. Introduction
-This interpreter serves as a bridge between rule declarations written in YAML format and executable Python code within OpExpert. It supports five fundamental operations crucial for setting rules within the OpExpert environment: Condition, Execution, Function, Import, Integration, and Module. Each operation corresponds to a specific aspect of rule definition and execution.
+This interpreter serves as a bridge between rule declarations written in YAML format and executable Python code within OpExpert. It supports six fundamental operations crucial for setting rules within the OpExpert environment: Conditions, Executions, Functions, Imports, Integrations, and Modules. Each operation corresponds to a specific aspect of rule definition and execution.
 
-- Condition: Specifies the conditions under which a rule should be triggered or applied.
-- Execution: ...
-- Function: ...
-- Import: ...
-- Integration: ...
-- Module: ...
+- Conditions: Specifies the conditions under which a rule should be triggered or applied.
+- Executions: ...
+- Functions: ...
+- Imports: ...
+- Integrations: ...
+- Modules: ...
 
 <br>
 
@@ -52,7 +52,7 @@ This section serves as a comprehensive guide to understanding the formatting str
 
 ## 3.1. Formatting your YAML script
 
-This section begins by discussing the essential task of specifying the type of operation within your YAML script. As outlined in [Section 1](#1-introduction), there are five possible operations, each identified by the key type within your YAML script.
+This section begins by discussing the essential task of specifying the type of operation within your YAML script. As outlined in [Section 1](#1-introduction), there are six possible operations, each identified by the key type within your YAML script.
 
 We'll now outline the format for each type of operation and provide clear instructions on how to properly structure them.
 
@@ -134,3 +134,28 @@ We'll now outline the format for each type of operation and provide clear instru
 - `fName` is a **required** parameter specifying the name of the function for later reference.
 - `recordID` is a **required** parameter used to pass the record ID of the function module to retrieve.
 - `args` is an **optional** parameter used to specify the variable name for the arguments of the function being created, if applicable. If the function does not require any arguments, this parameter can be omitted. Type conversions for these arguments must be managed within the code snippet being fetched.
+
+<br>
+
+### 3.1.5. Types of Operations: Executions
+
+```yaml
+- type:                         execute                     [required]
+  alias:                        <String>                    [optional]
+  fName:                        <String>                    [required]
+  params:
+    - argument                  <String>                    [optional]
+    - argument                  <String>                    [optional]
+    - argument                  <String>                    [optional]
+```
+
+- `type` is a **required** parameter that defines the type of operation being performed.
+- `alias` is an **optional** parameter that stores the return value of the function, if applicable.
+- `fName` is a **required** parameter specifying the name of the function to call.
+- `params` is an **optional** parameter used to specify the parameters if the function requires any.
+
+<br>
+
+### 3.1.6. Types of Operations: Conditions
+
+_Nightmare_
