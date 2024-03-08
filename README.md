@@ -1,5 +1,5 @@
 # 1. Introduction
-This interpreter serves as a bridge between rule declarations written in YAML format and executable Python code within OpExpert. It supports five fundamental operations crucial for setting rules within the OpExpert environment: Condition, Execution, Function, Integration, and Module. Each operation corresponds to a specific aspect of rule definition and execution.
+This interpreter serves as a bridge between rule declarations written in YAML format and executable Python code within OpExpert. It supports five fundamental operations crucial for setting rules within the OpExpert environment: Condition, Execution, Function, Import, Integration, and Module. Each operation corresponds to a specific aspect of rule definition and execution.
 
 - Condition: Specifies the conditions under which a rule should be triggered or applied.
 - Execution: ...
@@ -57,7 +57,25 @@ We'll now outline the format for each type of operation and provide clear instru
 
 <br>
 
-### 3.1.1. Types of Operations: Integrations
+### 3.1.1. Types of Operations: Imports
+
+`import` operations can be placed anywhere within the rule script. However, it's recommended to include them at the beginning of the script to ensure their scope availability throughout the code. This operation exclusively supports **Python packages.**
+
+```yaml
+- type:                         import                      [required]
+  importName:                   <String>                    [required]
+  packageName:                  <String>                    [optional]
+  alias:                        <String>                    [optional]
+```
+
+- `type` is a **required** parameter that defines the type of operation being performed.
+- `importName` is a **required** parameter that defines the name of the package that requires importing.
+- `packageName` is an optional parameter that specifies the name of the package during installation. Certain packages may have different import names compared to their installation names. If the names match, this parameter can be omitted.
+- `alias` is an optional parameter used to specify the name under which you'd like to import the package. If not specified, the package's name can be used for reference.
+
+<br>
+
+### 3.1.2. Types of Operations: Integrations
 
 ```yaml
 - type:                         integration                 [required]
@@ -71,12 +89,12 @@ We'll now outline the format for each type of operation and provide clear instru
 
 - `type` is a **required** parameter that defines the type of operation being performed.
 - `alias` is a **required** parameter serving as the variable name storing the returned integration.
-- `recordID` is a **required** parameter used to pass the record ID of the integration to retrieve.
+- `recordID` is a **required** parameter used to pass the record ID of the integration module to retrieve.
 - `params` is an **optional** parameter allowing specification of filters to apply on the fetched integration. Multiple filters may be specified as shown above.
 
 <br>
 
-### 3.1.2. Types of Operations: Modules
+### 3.1.3. Types of Operations: Modules
 
 ```yaml
 - type:                         module                      [required]
@@ -96,3 +114,22 @@ We'll now outline the format for each type of operation and provide clear instru
 - `moduleName` is a **required** parameter used to pass the name of the module to retrieve from.
 - `fieldName` is a **required** parameter used to pass the name of the field to retrieve teh data from.
 - `params` is an **optional** parameter allowing specification of filters to apply on the fetched module. Multiple filters may be specified as shown above.
+
+<br>
+
+### 3.1.4. Types of Operations: Functions
+
+```yaml
+- type:                         function                    [required]
+  fName:                        <String>                    [required]
+  recordID:                     <String>                    [required]
+  args:
+    - argument                  <String>                    [optional]
+    - argument                  <String>                    [optional]
+    - argument                  <String>                    [optional]
+```
+
+- `type` is a **required** parameter that defines the type of operation being performed.
+- `fName` is a **required** parameter specifying the name of the function for later reference.
+- `recordID` is a **required** parameter used to pass the record ID of the function module to retrieve.
+- `args` is an **optional** parameter used to specify the variable name for the arguments of the function being created, if applicable. If the function does not require any arguments, this parameter can be omitted. Type conversions for these arguments must be managed within the code snippet being fetched.
