@@ -70,8 +70,11 @@ We'll now outline the format for each type of operation and provide clear instru
 ```
 
 - `type` is a **required** parameter that defines the type of operation being performed.
+
 - `importName` is a **required** parameter that defines the name of the package that requires importing.
+
 - `packageName` is an optional parameter that specifies the name of the package during installation. Certain packages may have different import names compared to their installation names. If the names match, this parameter can be omitted.
+
 - `alias` is an optional parameter used to specify the name under which you'd like to import the package. If not specified, the package's name can be used for reference.
 
 <br>
@@ -83,14 +86,18 @@ We'll now outline the format for each type of operation and provide clear instru
   alias:                        <String>                    [required]
   recordID:                     <String>                    [required]
   params:
-    - filter(s)                 <String>                    [optional]
-    - filter(s)                 <String>                    [optional]
-    - filter(s)                 <String>                    [optional]
+    - from:                     <String>                    [optional]
+    - till:                     <String>                    [optional]
+    - maxRecords:               <String>                    [optional]
+    - includeDeleted:           <String>                    [optional]
 ```
 
 - `type` is a **required** parameter that defines the type of operation being performed.
+
 - `alias` is a **required** parameter serving as the variable name storing the returned integration.
+
 - `recordID` is a **required** parameter used to pass the record ID of the integration module to retrieve.
+
 - `params` is an **optional** parameter allowing specification of filters to apply on the fetched integration. Multiple filters may be specified as shown above.
 
 <br>
@@ -101,12 +108,13 @@ We'll now outline the format for each type of operation and provide clear instru
 - type:                         module                      [required]
   alias:                        <String>                    [required]
   recordID:                     <String>                    [required]
-  moduleName:                   <STring>                    [required]
+  moduleName:                   <String>                    [required]
   fieldName:                    <String>                    [required]
   params:
-    - filter(s)                 <String>                    [optional]
-    - filter(s)                 <String>                    [optional]
-    - filter(s)                 <String>                    [optional]
+    - from:                     <String>                    [optional]
+    - till:                     <String>                    [optional]
+    - maxRecords:               <String>                    [optional]
+    - includeDeleted:           <String>                    [optional]
 ```
 
 - `type` is a **required** parameter that defines the type of operation being performed.
@@ -139,20 +147,61 @@ We'll now outline the format for each type of operation and provide clear instru
 
 ### 3.1.5. Types of Operations: Executions
 
+Ideally, we have two distinct methods of passing a parameter to a function. We can either utilize a variable that stores the parameter or directly pass in the parameter as a value.
+
+<br>
+
+#### A. Passing a variable
+
 ```yaml
 - type:                         execute                     [required]
   alias:                        <String>                    [optional]
   fName:                        <String>                    [required]
-  params:
-    - argument                  <String>                    [optional]
-    - argument                  <String>                    [optional]
-    - argument                  <String>                    [optional]
+  params:                                                   [optional]
+    - pType:                    reference                   [required]
+      pValue:                   <String>                    [required]
+    - pType:                    reference                   [required]
+      pValue:                   <String>                    [required]
+    - pType:                    reference                   [required]
+      pValue:                   <String>                    [required]
 ```
 
 - `type` is a **required** parameter that defines the type of operation being performed.
+
 - `alias` is an **optional** parameter that stores the return value of the function, if applicable.
+
 - `fName` is a **required** parameter specifying the name of the function to call.
+
 - `params` is an **optional** parameter used to specify the parameters if the function requires any.
+  - `pType` is a **required** parameter used to specify the type of value being passed, indicating whether it is a reference to another variable or an actual value. You mention `reference` to indicate that you're passing a variable and not a direct value.
+  - `pValue` is a **required** parameter used to specify the value. If referring to a variable, provide the variable name. If it's a direct value, simply provide the value.
+
+<br>
+
+#### B. Passing a direct value
+
+```yaml
+- type:                         execute                     [required]
+  alias:                        <String>                    [optional]
+  fName:                        <String>                    [required]
+  params:                                                   [optional]
+    - pType:                    value                       [required]
+      pValue:                   <String>                    [required]
+    - pType:                    value                       [required]
+      pValue:                   <String>                    [required]
+    - pType:                    value                       [required]
+      pValue:                   <String>                    [required]
+```
+
+- `type` is a **required** parameter that defines the type of operation being performed.
+
+- `alias` is an **optional** parameter that stores the return value of the function, if applicable.
+
+- `fName` is a **required** parameter specifying the name of the function to call.
+
+- `params` is an **optional** parameter used to specify the parameters if the function requires any.
+  - `pType` is a **required** parameter used to specify the type of value being passed, indicating whether it is a reference to another variable or an actual value. You mention `value` to indicate that you're passing a direct value and not a variable.
+  - `pValue` is a **required** parameter used to specify the value. If referring to a variable, provide the variable name. If it's a direct value, simply provide the value.
 
 <br>
 
