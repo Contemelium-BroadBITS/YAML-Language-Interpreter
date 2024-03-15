@@ -42,18 +42,50 @@ from OpExpertOperations import Interactions
         interpretedText = ""
         
         condition = payload.get('condition')
-        condition.replace(" = ", " == ")
-        condition.replace("ELIF ", "elif ")
-        condition.replace("ELSE ", "else ")
-        condition.replace("IF ", "if ")
-        condition.replace(" AND ", " and ")
-        condition.replace(" OR ", " or ")
-        condition.replace(" NOT ", " not ")
-        condition.replace(" = ", " == ")
-        condition.replace(" = ", " == ")
-        condition.replace(" = ", " == ")
+        condition = condition.replace(" = ", " == ")
+        condition = condition.replace("ELIF ", "elif ")
+        condition = condition.replace("ELSE ", "else ")
+        condition = condition.replace("IF ", "if ")
+        condition = condition.replace(" AND ", " and ")
+        condition = condition.replace(" OR ", " or ")
+        condition = condition.replace(" NOT ", " not ")
+        condition = condition.replace(" = ", " == ")
+        condition = condition.replace(" = ", " == ")
+        condition = condition.replace(" = ", " == ")
         
-        # allRecords = findall()
+        matches = findall(self.dictionaryPattern, condition)
+        tabsToInclude = 0
+        iteratedMatch = []
+        indices = []
+        for match in matches:
+            if match[0] not in iteratedMatch:
+                # interpretedText += "\t" * self.tabsToInclude + f"{match[0]}StartIndex = 0\n"
+                indices.append('0')
+                iteratedMatch.append(match[0])
+        interpretedText += "\t" * self.tabsToInclude + f"indices = [{', '.join(indices)}]\n"
+        # interpretedText += "\t" * self.tabsToInclude + f"currentLevel = 0\n"
+        currentLevel = 0
+        iteratedMatch = []
+        for match in matches:
+            if match[0] not in iteratedMatch:
+                interpretedText += "\t" * self.tabsToInclude + f"for {match[0]} in {match[0]}Copy[indices[{currentLevel}]:]:\n"
+                self.tabsToInclude += 1
+                tabsToInclude += 1
+                if currentLevel != len(indices) - 1:
+                    # interpretedText += "\t" * self.tabsToInclude + f"{match[0]}StartIndex += 1\n"
+                    interpretedText += "\t" * self.tabsToInclude + f"indices[{currentLevel}] += 1\n"
+                iteratedMatch.append(match[0])
+                currentLevel += 1
+        interpretedText += "\t" * self.tabsToInclude + f"{condition}:\n"
+        self.tabsToInclude += 1
+        tabsToInclude += 1
+        interpretedText += "\t" * self.tabsToInclude + f"indices[{currentLevel - 1}] += 1\n"
+        for type in payload.get('action'):
+            process = self.processes[type['type']]
+            interpretedText += process(type)
+        if len(indices) > 1:
+            interpretedText += "\t" * self.tabsToInclude + "break\n"
+        self.tabsToInclude -= tabsToInclude
         
         return interpretedText
     
@@ -67,15 +99,13 @@ from OpExpertOperations import Interactions
                 parameterList.append(parameter.get('pValue'))
             elif parameter.get('pType') == 'value':
                 parameterList.append(f"\"{parameter.get('pValue')}\"")
-        print(parameterList)
-        print(', '.join(parameterList))
         
         interpretedText = ""
         
         if payload.get('alias'):
-            interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')} = {payload.get('fName')}(({', '.join(parameterList)}))"
+            interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')} = {payload.get('fName')}(({', '.join(parameterList)}))\n"
         else:
-            interpretedText += "\t" * self.tabsToInclude + f"{payload.get('fName')}({', '.join(parameterList)})"
+            interpretedText += "\t" * self.tabsToInclude + f"{payload.get('fName')}({', '.join(parameterList)})\n"
         
         return interpretedText
     
@@ -90,6 +120,7 @@ from OpExpertOperations import Interactions
         interpretedText += "\t" * self.tabsToInclude + "localVariables = locals()\n"
         interpretedText += "\t" * self.tabsToInclude + f"exec(anObject.getIntegrationWithID(\'{payload.get('recordID')}\', {payload.get('params')}), globals(), localVariables)\n"
         # interpretedText += f"getFunction(\'{payload.get('recordID')}\')\n"
+        self.tabsToInclude -= 1
         
         return interpretedText
     
@@ -100,7 +131,7 @@ from OpExpertOperations import Interactions
         interpretedText = ""
         
         interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Original = anObject.getIntegrationWithID(\'{payload.get('recordID')}\', {payload.get('params')})\n"
-        interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Copy = {payload.get('alias')}Original[:]"
+        interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Copy = {payload.get('alias')}Original[:]\n"
         
         return interpretedText
     
@@ -111,7 +142,7 @@ from OpExpertOperations import Interactions
         interpretedText = ""
         
         interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Original = anObject.getIntegrationWithID(\'{payload.get('recordID')}\', {payload.get('params')})\n"
-        interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Copy = {payload.get('alias')}Original[:]"
+        interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Copy = {payload.get('alias')}Original[:]\n"
         
         return interpretedText
     
@@ -131,7 +162,7 @@ from OpExpertOperations import Interactions
     
 def initialize():
     
-    with open('testSample.yml') as stream:
+    with open('finalized_sample_2.yaml') as stream:
         anObject = YAMLLanguageInterpreter(stream)
         stream.close()
 
