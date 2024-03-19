@@ -78,7 +78,7 @@ class Interactions:
     
     
     # This function gets the data from a module using the module ID
-    def getModuleWithID(self, reportID = '', moduleName = '', fieldName = [], params = ''):
+    def getModuleWithID(self, reportID = '', moduleName = '', fields = [], params = ''):
         
         if self.sessionID:
             
@@ -92,7 +92,16 @@ class Interactions:
             }
             
             try:
-                return self.__call('get_entry_list', data)['entry_list']
+                module = self.__call('get_entry_list', data)['entry_list']
+                if len(fields) == 0:
+                    return module
+                elif len(fields) == 1:
+                    return module[0]['name_value_list'][fields[0]]['value']
+                else:
+                    requiredFields = {}
+                    for field in fields:
+                        requiredFields[field] = module[0]['name_value_list'][field]['value']
+                    return requiredFields
             except:
                 return "An error occurred. Please try again after verifying your session ID and report ID."
             
@@ -116,7 +125,8 @@ class Interactions:
             }
             
             try:
-                return unquote(self.__call('get_entry_list', data)['entry_list'][0]['name_value_list']['description']['value'])
+                code = unquote(self.__call('get_entry_list', data)['entry_list'][0]['name_value_list']['description']['value'])
+                return code if code else 'return None'
             except:
                 return "An error occurred. Please try again after verifying your session ID and report ID."
             
