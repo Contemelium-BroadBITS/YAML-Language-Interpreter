@@ -12,21 +12,17 @@ from OpExpertOperations import Interactions
 
 class YAMLLanguageInterpreter():
     
-    def __init__(self, YAMLPayload):
+    def __init__(self, YAMLPayload, email, password, URL):
         
         self.originalPayload = loadYAML(YAMLPayload)
         self.interpretedText = ""
-        self.interpretedText += """from re import findall
-from traceback import print_exc
-from yaml import safe_load as loadYAML
-
-from OpExpertOperations import Interactions
-\n\n\n
-"""
+        self.interpretedText += "from OpExpertOperations import Interactions\n\n"
+        self.interpretedText += f"anObject = Interactions(\'{email}\', \'{password}\', \'{URL}\')\n"
+        self.interpretedText += "anObject.login()\n\n"
         self.recordIterated = []
         self.indices = []
         
-        self.anObject = Interactions('faisal@opexpert.com', 'MNSgie7Frf6Fjbqm4k', 'https://app02.opexpert.com/custom/service/v4_1_custom/rest.php')
+        self.anObject = Interactions(email, password, URL)
         self.anObject.login()
         
         self.processes = {
@@ -109,14 +105,13 @@ from OpExpertOperations import Interactions
         
         interpretedText = ""
         
-        interpretedText += "\t" * self.tabsToInclude + f"def {payload.get('fName')}({', '.join(payload.get('args'))}):\n"
+        interpretedText += "\t" * self.tabsToInclude + f"def {payload.get('fName')}"
+        if payload.get('args'):
+            interpretedText += f"({', '.join(payload.get('args'))}):\n"
+        else:
+            interpretedText += "():\n"
+        
         self.tabsToInclude += 1
-        '''# interpretedText += "\t" * self.tabsToInclude + "localVariables = locals()\n"
-        # interpretedText += "\t" * self.tabsToInclude + "print(globals())\n"
-        interpretedText += "\t" * self.tabsToInclude + "global anObject\n"
-        # interpretedText += "\t" * self.tabsToInclude + "def __function()\n"
-        interpretedText += "\t" * self.tabsToInclude + '\t' + f"exec(anObject.getCodeSnippetWithID(\'{payload.get('recordID')}\'), globals(), locals())\n"
-        # interpretedText += f"getFunction(\'{payload.get('recordID')}\')\n"'''
         
         for codeLine in self.anObject.getCodeSnippetWithID(payload.get('recordID')).split('\n'):
             interpretedText += "\t" * self.tabsToInclude + codeLine + '\n'
@@ -141,8 +136,7 @@ from OpExpertOperations import Interactions
         
         interpretedText = ""
         
-        interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Original = anObject.getIntegrationWithID(\'{payload.get('recordID')}\', {payload.get('params')})\n"
-        interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')}Copy = {payload.get('alias')}Original[:]\n"
+        interpretedText += "\t" * self.tabsToInclude + f"{payload.get('alias')} = anObject.getModuleWithID(\'{payload.get('recordID')}\', \'{payload.get('moduleName')}\', {payload.get('fields')}, {payload.get('params')})\n"
         
         return interpretedText
     
@@ -156,29 +150,3 @@ from OpExpertOperations import Interactions
             process = self.processes[type['type']]
             result = process(type)
             self.interpretedText += result
-
-
-
-
-    
-def initialize():
-    
-    with open('finalized_sample_2.yaml') as stream:
-        anObject = YAMLLanguageInterpreter(stream)
-        stream.close()
-
-    anObject.processPayload()
-    # anObject.interpretedText += "\nprint(theReportCopy)"
-    # print(anObject.interpretedText)
-    exec(anObject.interpretedText)
-
-
-
-
-if __name__ == '__main__':
-    
-    try:
-        initialize()
-    
-    except Exception as error:
-        print(error)
