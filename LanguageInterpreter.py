@@ -56,7 +56,8 @@ class YAMLLanguageInterpreter():
         matches = findall(self.dictionaryPattern, condition)
         tabsToInclude = 0
         currentLevel = 0
-        interpretedText += '\t' * self.tabsToInclude + "indices = []\n"
+        if not self.recordIterated:
+            interpretedText += '\t' * self.tabsToInclude + "indices = []\n"
         for match in matches:
             if match[0] not in self.recordIterated:
                 interpretedText += '\t' * self.tabsToInclude + "indices.append(0)\n"
@@ -69,7 +70,7 @@ class YAMLLanguageInterpreter():
         interpretedText += "\t" * self.tabsToInclude + f"{condition}:\n"
         self.tabsToInclude += 1
         tabsToInclude += 1
-        interpretedText += "\t" * self.tabsToInclude + f"indices[{currentLevel - 1}] += 1\n"
+        # interpretedText += "\t" * self.tabsToInclude + f"indices[{currentLevel}] += 1\n"
         for type in payload.get('action'):
                 process = self.processes[type['type']]
                 interpretedText += process(type)
