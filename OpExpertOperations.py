@@ -2,6 +2,7 @@ from hashlib import md5
 from io import BytesIO
 from json import dumps, loads
 from requests import Session
+from urllib.parse import unquote
 
 
 
@@ -68,6 +69,64 @@ class Interactions:
             
             try:
                 return self.__call('getAPIReportResponse', data)
+            except:
+                return "An error occurred. Please try again after verifying your session ID and report ID."
+            
+        else:
+            return "You cannot proceed with this action without initializing a session."
+    
+    
+    
+    # This function gets the data from a module using the module ID
+    def getModuleWithID(self, reportID = '', moduleName = '', fields = [], params = ''):
+        
+        if self.sessionID:
+            
+            data = {
+                'session': self.sessionID, 
+                'module_name': moduleName, 
+                'query': f"{moduleName.lower()}.id = \'{reportID}\'", 
+                'order_by': '', 
+                'offset': 0, 
+                'deleted': False
+            }
+            
+            try:
+                module = self.__call('get_entry_list', data)['entry_list']
+                if len(fields) == 0:
+                    return module
+                elif len(fields) == 1:
+                    return module[0]['name_value_list'][fields[0]]['value']
+                else:
+                    requiredFields = {}
+                    for field in fields:
+                        requiredFields[field] = module[0]['name_value_list'][field]['value']
+                    return requiredFields
+            except:
+                return "An error occurred. Please try again after verifying your session ID and report ID."
+            
+        else:
+            return "You cannot proceed with this action without initializing a session."
+    
+    
+    
+    # This function gets the code snippet from a function using the function ID
+    def getCodeSnippetWithID(self, reportID = ''):
+        
+        if self.sessionID:
+            
+            data = {
+                'session': self.sessionID, 
+                'module_name': 'bc_api_methods', 
+                'query': f"{'bc_api_methods'.lower()}.id = \'{reportID}\'", 
+                'order_by': '', 
+                'offset': 0, 
+                'deleted': False
+            }
+            
+            try:
+                code = unquote(self.__call('get_entry_list', data)['entry_list'][0]['name_value_list']['description']['value'])
+                return code if code else 'return None'
             except:
                 return "An error occurred. Please try again after verifying your session ID and report ID."
             
