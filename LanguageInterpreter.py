@@ -24,6 +24,10 @@ from OpExpertOperations import Interactions
 \n\n\n
 """
         self.recordIterated = []
+        self.indices = []
+        
+        self.anObject = Interactions('faisal@opexpert.com', 'MNSgie7Frf6Fjbqm4k', 'https://app02.opexpert.com/custom/service/v4_1_custom/rest.php')
+        self.anObject.login()
         
         self.processes = {
             'condition': self.__processCondition, 
@@ -55,35 +59,25 @@ from OpExpertOperations import Interactions
         
         matches = findall(self.dictionaryPattern, condition)
         tabsToInclude = 0
-        iteratedMatch = []
-        indices = []
-        for match in matches:
-            if match[0] not in iteratedMatch:
-                # interpretedText += "\t" * self.tabsToInclude + f"{match[0]}StartIndex = 0\n"
-                indices.append('0')
-                iteratedMatch.append(match[0])
-        interpretedText += "\t" * self.tabsToInclude + f"indices = [{', '.join(indices)}]\n"
-        # interpretedText += "\t" * self.tabsToInclude + f"currentLevel = 0\n"
         currentLevel = 0
-        iteratedMatch = []
+        interpretedText += '\t' * self.tabsToInclude + "indices = []\n"
         for match in matches:
-            if match[0] not in iteratedMatch:
+            if match[0] not in self.recordIterated:
+                interpretedText += '\t' * self.tabsToInclude + "indices.append(0)\n"
                 interpretedText += "\t" * self.tabsToInclude + f"for {match[0]} in {match[0]}Copy[indices[{currentLevel}]:]:\n"
                 self.tabsToInclude += 1
                 tabsToInclude += 1
-                if currentLevel != len(indices) - 1:
-                    # interpretedText += "\t" * self.tabsToInclude + f"{match[0]}StartIndex += 1\n"
+                if currentLevel != len(self.recordIterated) - 1:
                     interpretedText += "\t" * self.tabsToInclude + f"indices[{currentLevel}] += 1\n"
-                iteratedMatch.append(match[0])
-                currentLevel += 1
+                self.recordIterated.append(match[0])
         interpretedText += "\t" * self.tabsToInclude + f"{condition}:\n"
         self.tabsToInclude += 1
         tabsToInclude += 1
         interpretedText += "\t" * self.tabsToInclude + f"indices[{currentLevel - 1}] += 1\n"
         for type in payload.get('action'):
-            process = self.processes[type['type']]
-            interpretedText += process(type)
-        if len(indices) > 1:
+                process = self.processes[type['type']]
+                interpretedText += process(type)
+        if len(self.recordIterated) > 1:
             interpretedText += "\t" * self.tabsToInclude + "break\n"
         self.tabsToInclude -= tabsToInclude
         
@@ -117,9 +111,15 @@ from OpExpertOperations import Interactions
         
         interpretedText += "\t" * self.tabsToInclude + f"def {payload.get('fName')}({', '.join(payload.get('args'))}):\n"
         self.tabsToInclude += 1
-        interpretedText += "\t" * self.tabsToInclude + "localVariables = locals()\n"
-        interpretedText += "\t" * self.tabsToInclude + f"exec(anObject.getIntegrationWithID(\'{payload.get('recordID')}\', {payload.get('params')}), globals(), localVariables)\n"
-        # interpretedText += f"getFunction(\'{payload.get('recordID')}\')\n"
+        '''# interpretedText += "\t" * self.tabsToInclude + "localVariables = locals()\n"
+        # interpretedText += "\t" * self.tabsToInclude + "print(globals())\n"
+        interpretedText += "\t" * self.tabsToInclude + "global anObject\n"
+        # interpretedText += "\t" * self.tabsToInclude + "def __function()\n"
+        interpretedText += "\t" * self.tabsToInclude + '\t' + f"exec(anObject.getCodeSnippetWithID(\'{payload.get('recordID')}\'), globals(), locals())\n"
+        # interpretedText += f"getFunction(\'{payload.get('recordID')}\')\n"'''
+        
+        for codeLine in self.anObject.getCodeSnippetWithID(payload.get('recordID')).split('\n'):
+            interpretedText += "\t" * self.tabsToInclude + codeLine + '\n'
         self.tabsToInclude -= 1
         
         return interpretedText
@@ -152,6 +152,7 @@ from OpExpertOperations import Interactions
         
         for type in self.originalPayload:
             self.recordIterated = []
+            self.indices = []
             process = self.processes[type['type']]
             result = process(type)
             self.interpretedText += result
@@ -168,8 +169,8 @@ def initialize():
 
     anObject.processPayload()
     # anObject.interpretedText += "\nprint(theReportCopy)"
-    print(anObject.interpretedText)
-    # exec(anObject.interpretedText)
+    # print(anObject.interpretedText)
+    exec(anObject.interpretedText)
 
 
 
