@@ -109,7 +109,10 @@ We'll now outline the format for each type of operation and provide clear instru
   alias:                        <String>                    [required]
   recordID:                     <String>                    [required]
   moduleName:                   <String>                    [required]
-  fieldName:                    <String>                    [required]
+  fields:                       <String>                    [required]
+    - field                     <String>                    [required]
+    - field                     <String>                    [required]
+    - field                     <String>                    [required]
   params:
     - from:                     <String>                    [optional]
     - till:                     <String>                    [optional]
