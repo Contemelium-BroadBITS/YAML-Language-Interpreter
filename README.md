@@ -2,11 +2,11 @@
 This interpreter serves as a bridge between rule declarations written in YAML format and executable Python code within OpExpert. It supports six fundamental operations crucial for setting rules within the OpExpert environment: Conditions, Executions, Functions, Imports, Integrations, and Modules. Each operation corresponds to a specific aspect of rule definition and execution.
 
 - Conditions: Specifies the conditions under which a rule should be triggered or applied.
-- Executions: ...
-- Functions: ...
-- Imports: ...
-- Integrations: ...
-- Modules: ...
+- Executions: Executes a function.
+- Functions: Imports a code snippet from the OpExpert environment and stores it as a function that can be executed later.
+- Imports: Imports packages within the Python environment.
+- Integrations: A list or records where each record is a dictionary.
+- Modules: A dictionary that may hold required information.
 
 <br>
 
@@ -85,7 +85,7 @@ We'll now outline the format for each type of operation and provide clear instru
 - type:                         integration                 [required]
   alias:                        <String>                    [required]
   recordID:                     <String>                    [required]
-  params:
+  params:                                                   [optional]
     - from:                     <String>                    [optional]
     - till:                     <String>                    [optional]
     - maxRecords:               <String>                    [optional]
@@ -109,23 +109,30 @@ We'll now outline the format for each type of operation and provide clear instru
   alias:                        <String>                    [required]
   recordID:                     <String>                    [required]
   moduleName:                   <String>                    [required]
-  fields:                       <String>                    [required]
+  fields:                                                   [required]
     - field                     <String>                    [required]
     - field                     <String>                    [required]
     - field                     <String>                    [required]
-  params:
-    - from:                     <String>                    [optional]
-    - till:                     <String>                    [optional]
-    - maxRecords:               <String>                    [optional]
-    - includeDeleted:           <String>                    [optional]
 ```
 
 - `type` is a **required** parameter that defines the type of operation being performed.
+
 - `alias` is a **required** parameter serving as the variable name storing the returned integration.
+
 - `recordID` is a **required** parameter used to pass the record ID of the module to retrieve.
+
 - `moduleName` is a **required** parameter used to pass the name of the module to retrieve from.
+
 - `fieldName` is a **required** parameter used to pass the name of the field to retrieve teh data from.
+
 - `params` is an **optional** parameter allowing specification of filters to apply on the fetched module. Multiple filters may be specified as shown above.
+
+When a *module* action is invoked, it can return two different types of values depending on the case.
+
+- When **no field has been specified or multiple fields have been requested,** a dictionary containing the key-value pairs of all the fields, or the specified fields respectively, will be returned. 
+These values can be referred to just like a normal dictionary in Python, using the syntax `alias['key']`.
+
+- When **only a single field has been requested,** only the value of that specific field is returned and stored as a string. This can simply be referred to using the syntax `alias`.
 
 <br>
 
@@ -135,15 +142,18 @@ We'll now outline the format for each type of operation and provide clear instru
 - type:                         function                    [required]
   fName:                        <String>                    [required]
   recordID:                     <String>                    [required]
-  args:
+  args:                                                     [optional]
     - argument                  <String>                    [optional]
     - argument                  <String>                    [optional]
     - argument                  <String>                    [optional]
 ```
 
 - `type` is a **required** parameter that defines the type of operation being performed.
+
 - `fName` is a **required** parameter specifying the name of the function for later reference.
+
 - `recordID` is a **required** parameter used to pass the record ID of the function module to retrieve.
+
 - `args` is an **optional** parameter used to specify the variable name for the arguments of the function being created, if applicable. If the function does not require any arguments, this parameter can be omitted. Type conversions for these arguments must be managed within the code snippet being fetched.
 
 <br>
@@ -210,4 +220,83 @@ Ideally, we have two distinct methods of passing a parameter to a function. We c
 
 ### 3.1.6. Types of Operations: Conditions
 
-_Nightmare_
+```yaml
+- type:                         condition                   [required]
+  condition:                    <String>                    [required]
+  action:                                                   [required]
+    - type:                     <Type>                      [required]
+    - type:                     <Type>                      [optional]
+    - type:                     <Type>                      [optional]
+```
+
+- `type` is a **required** parameter that defines the type of operation being performed.
+
+- `condition` is a **required** parameter that specifies the condition that must be satisfied.
+
+- `action` is a **required** parameter that specifies the action to be executed upon satisfying a condition.
+  - Within the `action` keyword, the `type` parameter can be any of the previously mentioned types, provided they adhere to their respective syntax as outlined.
+  - At least one type of action must be provided. However, subsequent actions for satisfying the condition are optional.
+  - Two actions of type `condition` must not exist within the same hierarchy if there is a reference to the same integration in either condition.
+
+Different variables are referenced in various ways. Here's how you can refer to each of them:
+
+- **Integrations**
+  <br>
+  When a variable or alias contains an Integration returned by the script, it's stored in the form of a list. Each record within this list is represented as a dictionary. To simplify conditional operations on these records, the structure has been designed to facilitate ease of use. When used in the statement under the *condition* keyword, you can refer to the key of the record simply as `integration['key']`, in which case the statement would look like `IF integration['key'] = value`.
+  <br>
+  When you need to use the value that has satisfied a condition in a subsequent action, you can simply refer to it in a similar manner by using `integration['key']`.
+
+- **Modules**
+  <br>
+  As of now, Modules cannot be used in conditional statements, as it may conflict with the use of Integrations.
+
+<br>
+
+
+Conditions can be categorized into three types, each serving a specific use case:
+
+- IF: This condition is used to specify a block of code to be executed if the given condition is true. It's the initial check in a series of conditions.
+
+- ELIF: Short for "else if", this condition is used to specify a new condition to test if the previous conditions were not true. It's used when there are multiple conditions to be checked in a sequence after the initial IF condition. It is necessary that the `ELIF` statement is used in the same hierarchy as a previous `IF` statement. It cannot be used independently; it must follow an `IF` statement that has been previously mentioned under the same hierarchy.
+
+- ELSE: This condition is used to specify a block of code to be executed if none of the preceding conditions are true. It's the final fallback option in a series of conditions. It is necessary that the `ELSE` statement is used in the same hierarchy as a previous `IF` statement. It cannot be used independently; it must follow an `IF` statement that has been previously mentioned under the same hierarchy.
+
+<br>
+
+The condition keyword will contain the statement that needs to be satisfied. Here are the conditional operators that can be used and their meanings:
+
+- `AND` is used as a Logical AND operator, requires both conditions to be true.
+
+- `OR` is used as a Logical OR operator, requires at least one condition to be true.
+
+- `NOT` is used as a Logical NOT operator, negates the condition.
+
+- `=` is used as a Equality operator, checks if two values are equal.
+
+- `>` is used as a Greater than operator, checks if one value is greater than another.
+
+- `<` is used as a Less than operator, checks if one value is less than another.
+
+- `>=` is used as a Greater than or equal to operator, checks if one value is greater than or equal to another.
+
+- `<=` is used as a Less than or equal to operator, checks if one value is less than or equal to another.
+
+<br>
+
+With this knowledge, the statement can be structured similarly to how Python 'IF' statements are organized. The structured statement can then be provided under the `conditon` key in the YAML script.
+
+<br>
+
+## 3.2. Interpreting your YAML script
+
+Interpreting your YAML script involves parsing the YAML data and converting it into executable Python code. This process is facilitated by the provided code in the repository, specifically the `LanguageInterpreter` class. To interpret the YAML script:
+
+<br>
+
+- Step 1: Import the `LanguageInterpreter.py` module into your Python environment.
+
+- Step 2: Create an object of the `LanguageInterpreter` class, passing username, password, and the path to your YAML script or the record ID of a function stored within the OpExpert environment as an argument.
+
+- Step 3: The interpreter will parse the YAML data and generate corresponding Python code, based on the defined operations and conditions. While the process isn't automatic, it's necessary to call the `processPayload()` method of the object.
+
+- Step 4: You can either print the generated Python code or execute it using the methods `printInterpretedText()` or `executeInterpretedText()` respectively.

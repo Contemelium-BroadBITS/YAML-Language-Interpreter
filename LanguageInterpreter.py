@@ -151,3 +151,23 @@ class YAMLLanguageInterpreter():
             process = self.processes[type['type']]
             result = process(type)
             self.interpretedText += result
+            
+        return self.interpretedText
+    
+    
+    
+    def executeInterpretedText(self):
+        
+        if self.interpretedText:
+            exec(self.interpretedText)
+            return True
+        else:
+            return "ERROR: Cannot execute an empty script. Please ensure the existence of a code snippet and try again."
+    
+    
+    
+    def printInterpretedTText(self):
+        
+        print(self.interpretedText)
+        
+        return self.interpretedText
