@@ -2,11 +2,11 @@
 This interpreter serves as a bridge between rule declarations written in YAML format and executable Python code within OpExpert. It supports six fundamental operations crucial for setting rules within the OpExpert environment: Conditions, Executions, Functions, Imports, Integrations, and Modules. Each operation corresponds to a specific aspect of rule definition and execution.
 
 - Conditions: Specifies the conditions under which a rule should be triggered or applied.
-- Executions: ...
-- Functions: ...
-- Imports: ...
-- Integrations: ...
-- Modules: ...
+- Executions: Executes a function.
+- Functions: Imports a code snippet from the OpExpert environment and stores it as a function that can be executed later.
+- Imports: Imports packages within the Python environment.
+- Integrations: A list or records where each record is a dictionary.
+- Modules: A dictionary that may hold required information.
 
 <br>
 
